@@ -2,19 +2,29 @@ using System.Data;
 using System.Globalization;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using SysEnum = System.Enum;
 
 namespace WinFormsApp1
 {
     public partial class Form1 : Form
     {
+        public enum estados : int
+        {
+            STOCK = 1,
+            FALTANTE = 2,
+            REVISION = 3,
+        }
+
+        
         public Form1()
         {
             InitializeComponent();
 
+            comboBox1.DataSource = SysEnum.GetValues(typeof(estados));
+            
             //format dd/mm/yyyy to datetimepicker
             dateTimePicker1.Format = DateTimePickerFormat.Custom;
             dateTimePicker1.CustomFormat = "dd/MM/yyyy";
-            
 
 
             dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
@@ -23,27 +33,25 @@ namespace WinFormsApp1
 
 
             // fill data to Datagridview
-            dataGridView1.ColumnCount = 3;
+            dataGridView1.ColumnCount = 4;
             //dataGridView1.Columns[0].Name = "ID";
             dataGridView1.Columns[0].Name = "Descripción";
             dataGridView1.Columns[1].Name = "Valor";
             dataGridView1.Columns[2].Name = "Fecha de Vencimiento";
+            dataGridView1.Columns[3].Name = "Estado";
             
-
             dataGridView1.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             dataGridView1.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             dataGridView1.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dataGridView1.Columns[3].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
-            //add rows with custom date format (dd/MM/yyyy)
-           
-
-            string[] row = new string[] { "Mouse", "1000", "01/01/2020" };
+            string[] row = new string[] { "Mouse", "1000", "01/01/2020", "STOCK" };
             dataGridView1.Rows.Add(row);
-            row = new string[] { "Teclado", "2000", "01/01/2020" };
+            row = new string[] { "Teclado", "2000", "01/01/2020", "STOCK" };
             dataGridView1.Rows.Add(row);
-            row = new string[] { "Monitor", "3000", "22/01/2021" };
+            row = new string[] { "Monitor", "3000", "22/01/2021", "STOCK" };
             dataGridView1.Rows.Add(row);
-            row = new string[] { "Auriculares", "4000", "01/04/2022" };
+            row = new string[] { "Auriculares", "4000", "01/04/2022", "REVISION" };
             dataGridView1.Rows.Add(row);
 
             DataGridViewButtonColumn btn = new DataGridViewButtonColumn();
@@ -64,7 +72,6 @@ namespace WinFormsApp1
             }
         }
 
-        
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             //muestra la info de la fila seleccionada en los textbox
@@ -76,7 +83,11 @@ namespace WinFormsApp1
 
                 //fill datetimePicker with 3 column value
                 dateTimePicker1.Value = DateTime.ParseExact(row.Cells["Fecha de Vencimiento"].Value.ToString(), "dd/MM/yyyy", CultureInfo.InvariantCulture);
-               
+
+                //select combobox with selected option
+                comboBox1.SelectedIndex = comboBox1.FindStringExact(row.Cells["Estado"].Value.ToString());
+
+
             }
 
 
@@ -84,21 +95,20 @@ namespace WinFormsApp1
 
         private void btnAgregar_Click(object sender, EventArgs e)
         {
-            //addRow(txtNombre.Text, txtValor.Text, dateTimePicker1.Text);
+            //add row with estado from combobox
+            addRow(txtNombre.Text, txtValor.Text, dateTimePicker1.Value.ToString("dd/MM/yyyy"), comboBox1.SelectedItem.ToString());
 
-            //addRow with datetimepicker in "dd/mm/yyyy" format
-            addRow(txtNombre.Text, txtValor.Text, dateTimePicker1.Value.ToString("dd/MM/yyyy"));
         }
-        private void addRow(string nombre, string valor, string fecha)
+        private void addRow(string nombre, string valor, string fecha, string estado)
         {
-            //dataGridView1.Rows.Add(nombre, valor, fecha);
-            String[] row = { nombre, valor, fecha };
+          
+            String[] row = { nombre, valor, fecha, estado };
             dataGridView1.Rows.Add(row);
         }
 
         private void btnEliminar_Click_1(object sender, EventArgs e)
         {
-            //ask if is ok to delete
+            
             string message = "¿Confirmás la eliminación?";
             string title = "Eliminar producto";
             MessageBoxButtons buttons = MessageBoxButtons.YesNo;
@@ -121,6 +131,9 @@ namespace WinFormsApp1
             {
                 dataGridView1.Rows[selectedIndex].Cells[0].Value = txtNombre.Text;
                 dataGridView1.Rows[selectedIndex].Cells[1].Value = txtValor.Text;
+                dataGridView1.Rows[selectedIndex].Cells[2].Value = dateTimePicker1.Value.ToString("dd/MM/yyyy");
+                dataGridView1.Rows[selectedIndex].Cells[3].Value = comboBox1.SelectedItem.ToString();
+                
                 dataGridView1.Refresh();
                 MessageBox.Show("Modificado");
             }
@@ -131,8 +144,10 @@ namespace WinFormsApp1
 
         }
 
-        //put data in textbox on row click
+        private void Form1_Load(object sender, EventArgs e)
+        {
 
+        }
 
     }
 }
