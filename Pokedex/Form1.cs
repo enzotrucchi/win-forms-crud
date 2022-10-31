@@ -15,17 +15,10 @@ namespace Pokedex
         {
             InitializeComponent();
         }
-
-
-
-
-
-
-
         
         private void Form1_Load(object sender, EventArgs e)
         {
-            //cargarCombo();
+            cargarCombo();
             //load different image in pictureBox1
             pictureBox1.Image = Image.FromFile(
                 "../../../Imagenes/0.png");
